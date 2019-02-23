@@ -1,0 +1,7 @@
+.root {
+    -fx-font-family: "Roboto-Regular";
+}
+
+.nextTaskButton {
+    -fx-background-color: #1b479370;
+}
