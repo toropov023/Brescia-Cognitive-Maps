@@ -9,10 +9,10 @@
 <AnchorPane fx:id="mainPane" styleClass="root" prefHeight="274.0" prefWidth="411.0" xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="ca.toropov.research.MainController">
-    <JFXTextField focusColor="#1b4793" layoutX="106.0" layoutY="108.0" prefHeight="25.0" prefWidth="200.0"
+    <JFXTextField fx:id="participantId" focusColor="#1b4793" layoutX="106.0" layoutY="108.0" prefHeight="25.0" prefWidth="200.0"
                   promptText="Participant ID..."/>
-    <JFXButton fx:id="startButton" buttonType="RAISED" layoutX="185.0" layoutY="142.0" ripplerFill="#082497"
-               style="-fx-background-color: #1b479370;" text="Start"/>
+    <JFXButton fx:id="startButton" buttonType="RAISED" layoutX="185.0" layoutY="162.0" ripplerFill="#082497"
+               style="-fx-background-color: #1b479370; -fx-text-fill: #F5F5F5" text="Start"/>
     <Label layoutX="94.0" layoutY="33.0" text="Cognitive Maps Research" textFill="#000000a3">
         <font>
             <Font size="20.0"/>

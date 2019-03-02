@@ -1,28 +1,47 @@
 package ca.toropov.research.task;
 
-import javafx.scene.Node;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 /**
  * Author: toropov
  * Date: 2/20/2019
  */
-public abstract class Task extends AnchorPane {
+public abstract class Task {
     public Task() {
 
     }
 
-    abstract Node getInstructions();
+    public abstract void addInstructions(VBox pane, int wrapWidth);
 
-    abstract Node getTask();
+    public abstract void addTask(Pane pane);
 
-    abstract boolean canGoNext();
+    public abstract boolean canGoNext();
 
-    abstract boolean canGoPrevious();
+    public abstract boolean canGoPrevious();
 
-    abstract boolean isPreviousDisabled();
+    public abstract boolean isPreviousDisabled();
 
-    abstract void onNext();
+    public abstract void save();
 
-    abstract void onPrevious();
+    public abstract Task getNextTask();
+
+    public Text formatTitle(String text, int wrapWidth) {
+        return formatText(text, true, wrapWidth);
+    }
+
+    public Text formatText(String text, int wrapWidth) {
+        return formatText(text, false, wrapWidth);
+    }
+
+    private Text formatText(String msg, boolean title, int wrapWidth) {
+        Text text = new Text(msg);
+        if (title) {
+            text.getStyleClass().add("title");
+        }
+        text.setWrappingWidth(wrapWidth);
+
+        return text;
+    }
 }
