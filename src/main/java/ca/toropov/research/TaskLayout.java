@@ -1,6 +1,6 @@
 package ca.toropov.research;
 
-import ca.toropov.research.task.FirstTask;
+import ca.toropov.research.task.LocationGatheringTask;
 import ca.toropov.research.task.Task;
 import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
@@ -16,6 +16,7 @@ import javafx.scene.paint.Color;
 public class TaskLayout extends GridPane {
     private final VBox instructions = new VBox();
     private final StackPane taskPane = new StackPane();
+    private Task currentTask;
 
     public TaskLayout() {
         setHgap(10);
@@ -43,6 +44,7 @@ public class TaskLayout extends GridPane {
         JFXButton nextTaskButton = new JFXButton("Next Task");
         nextTaskButton.setButtonType(JFXButton.ButtonType.RAISED);
         nextTaskButton.getStyleClass().add("nextTaskButton");
+        nextTaskButton.setOnMouseClicked(event -> nextTask());
 
         StackPane nextTaskPane = new StackPane(nextTaskButton);
         nextTaskPane.setAlignment(Pos.CENTER);
@@ -58,10 +60,24 @@ public class TaskLayout extends GridPane {
         taskPane.setPadding(new Insets(10));
         add(taskPane, 1, 0, 1, 2);
 
-        Platform.runLater(() -> {
-            Task task = new FirstTask();
-            task.addInstructions(instructions, (int) (instructions.getWidth() - 20));
-            task.addTask(taskPane);
-        });
+        Platform.runLater(() -> Platform.runLater(() -> {
+            currentTask = new LocationGatheringTask();
+            currentTask.addInstructions(instructions, (int) (instructions.getWidth() - 20));
+            currentTask.addTask(taskPane);
+        }));
+    }
+
+    private void nextTask() {
+        if (currentTask != null && currentTask.canGoNext()) {
+            currentTask.save();
+            currentTask = currentTask.getNextTask();
+
+            instructions.getChildren().clear();
+            taskPane.getChildren().clear();
+            if (currentTask != null) {
+                currentTask.addInstructions(instructions, (int) (instructions.getWidth() - 20));
+                currentTask.addTask(taskPane);
+            }
+        }
     }
 }

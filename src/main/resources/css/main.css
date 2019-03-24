@@ -3,11 +3,12 @@
 }
 
 .nextTaskButton {
-    -fx-background-color: #32cd32;
+    -fx-background-color: #4CAF50;
 }
 
 .instructionsContainer {
     -fx-font-size: 16px;
+    -fx-text-fill: #808080;
 }
 
 .instructionsContainer .title {

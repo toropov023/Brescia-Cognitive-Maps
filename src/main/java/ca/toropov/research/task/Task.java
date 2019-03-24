@@ -1,6 +1,6 @@
 package ca.toropov.research.task;
 
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
@@ -15,7 +15,7 @@ public abstract class Task {
 
     public abstract void addInstructions(VBox pane, int wrapWidth);
 
-    public abstract void addTask(Pane pane);
+    public abstract void addTask(StackPane pane);
 
     public abstract boolean canGoNext();
 
@@ -39,6 +39,8 @@ public abstract class Task {
         Text text = new Text(msg);
         if (title) {
             text.getStyleClass().add("title");
+        } else {
+            text.getStyleClass().add("text");
         }
         text.setWrappingWidth(wrapWidth);
 
