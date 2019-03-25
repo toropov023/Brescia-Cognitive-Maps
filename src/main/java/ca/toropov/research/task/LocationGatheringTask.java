@@ -1,5 +1,6 @@
 package ca.toropov.research.task;
 
+import ca.toropov.research.data.Frequency;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.validation.RequiredFieldValidator;
@@ -107,11 +108,9 @@ public class LocationGatheringTask extends Task {
             }
 
             ObservableList<String> choices = FXCollections.observableArrayList();
-            choices.add("Less than once per week");
-            choices.add("1-2 times per week");
-            choices.add("3-4 times per week");
-            choices.add("5-6 times per week");
-            choices.add("More than 6 times per week");
+            for (Frequency frequency : Frequency.values()) {
+                choices.add(frequency.getDescription());
+            }
             JFXComboBox<String> frequency = new JFXComboBox<>(choices);
             frequency.setPromptText("Click to select...");
 
