@@ -17,4 +17,12 @@ public class Location {
     //Defined by user
     private String description;
     private Frequency frequency;
+
+    public String getCompleteName() {
+        if (address.contains(name)) {
+            return address;
+        }
+
+        return name + ". " + address;
+    }
 }

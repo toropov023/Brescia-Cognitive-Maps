@@ -5,7 +5,6 @@ import com.grack.nanojson.JsonArray;
 import com.grack.nanojson.JsonObject;
 import com.grack.nanojson.JsonParser;
 import com.grack.nanojson.JsonParserException;
-import javafx.application.Platform;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
@@ -27,14 +26,6 @@ public class GoogleMapsAPI {
 
     private GoogleMapsAPI() {
         apiKey = CredentialsFile.getI().getGoogleKey();
-    }
-
-    //TODO test the api
-    public static void main(String... args) {
-        long millis = System.currentTimeMillis();
-        GoogleMapsAPI.getI().searchLocation("western university", locations -> {
-            System.out.println(locations.size() + ":" + (System.currentTimeMillis() - millis));
-        });
     }
 
     public static GoogleMapsAPI getI() {
@@ -78,26 +69,19 @@ public class GoogleMapsAPI {
     }
 
     private void callQuery(String query, Consumer<JsonObject> consumer) {
-        try {
-            URL url = new URL(query);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            JsonObject object = JsonParser.object().from(connection.getInputStream());
-            connection.disconnect();
+        Scheduler.run(() -> {
+            try {
+                URL url = new URL(query);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                JsonObject object = JsonParser.object().from(connection.getInputStream());
+                connection.disconnect();
 
-            if (Platform.isAccessibilityActive()) {
-                Platform.runLater(() -> consumer.accept(object));
-            } else {
-                consumer.accept(object);
+                Scheduler.runOnMainThread(() -> consumer.accept(object));
+            } catch (IOException | JsonParserException e) {
+                e.printStackTrace();
+                Scheduler.runOnMainThread(() -> consumer.accept(null));
             }
-        } catch (IOException | JsonParserException e) {
-            e.printStackTrace();
-
-            if (Platform.isAccessibilityActive()) {
-                Platform.runLater(() -> consumer.accept(null));
-            } else {
-                consumer.accept(null);
-            }
-        }
+        });
     }
 
     private QueryGenerator generateQuery(ApiType type) {

@@ -2,8 +2,8 @@ package ca.toropov.research;
 
 import ca.toropov.research.task.LocationGatheringTask;
 import ca.toropov.research.task.Task;
+import ca.toropov.research.util.Scheduler;
 import com.jfoenix.controls.JFXButton;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.*;
@@ -27,7 +27,7 @@ public class TaskLayout extends GridPane {
         col2.setPercentWidth(70);
         getColumnConstraints().addAll(col1, col2);
 
-        Platform.runLater(() -> {
+        Scheduler.runOnMainThread(() -> {
             double height = getScene().getHeight();
             RowConstraints row1 = new RowConstraints();
             RowConstraints row2 = new RowConstraints();
@@ -60,7 +60,7 @@ public class TaskLayout extends GridPane {
         taskPane.setPadding(new Insets(10));
         add(taskPane, 1, 0, 1, 2);
 
-        Platform.runLater(() -> Platform.runLater(() -> {
+        Scheduler.runOnMainThread(() -> Scheduler.runOnMainThread(() -> {
             currentTask = new LocationGatheringTask();
             currentTask.addInstructions(instructions, (int) (instructions.getWidth() - 20));
             currentTask.addTask(taskPane);

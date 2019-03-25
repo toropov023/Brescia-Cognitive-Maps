@@ -1,10 +1,15 @@
 package ca.toropov.research.task;
 
 import ca.toropov.research.data.Frequency;
+import ca.toropov.research.data.Location;
+import ca.toropov.research.util.GoogleMapsAPI;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.validation.RequiredFieldValidator;
 import com.jfoenix.validation.base.ValidatorBase;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
@@ -14,10 +19,15 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 import lombok.Value;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * Author: toropov
@@ -25,6 +35,8 @@ import java.util.List;
  */
 public class LocationGatheringTask extends Task {
     private List<Row> fields = new ArrayList<>();
+    private Label locationLabel;
+    private Set<JFXComboBox<String>> locationFields = new HashSet<>();
 
     @Override
     public void addInstructions(VBox vBox, int wrapWidth) {
@@ -77,6 +89,7 @@ public class LocationGatheringTask extends Task {
             GridPane.setHalignment(index, HPos.CENTER);
 
             Label location = new Label("Location/Address");
+            locationLabel = location;
             location.setFont(Font.font(18));
             GridPane.setHalignment(location, HPos.CENTER);
 
@@ -95,17 +108,18 @@ public class LocationGatheringTask extends Task {
             Label index = new Label(i + "");
             GridPane.setHalignment(index, HPos.RIGHT);
 
-            JFXTextField location = new JFXTextField();
+            JFXComboBox<String> location = new JFXComboBox<>();
+            locationFields.add(location);
+            location.setEditable(true);
             location.setPromptText("Type in location...");
             if (i < 5) {
                 location.getValidators().add(new RequiredFieldValidator("Location is required"));
             }
+            location.getSelectionModel().selectedItemProperty().addListener(buildLocationListener(location));
+            location.setMinWidth(200);
 
             JFXTextField description = new JFXTextField();
             description.setPromptText("Type in description...");
-            if (i < 5) {
-                description.getValidators().add(new RequiredFieldValidator("Description is required"));
-            }
 
             ObservableList<String> choices = FXCollections.observableArrayList();
             for (Frequency frequency : Frequency.values()) {
@@ -125,6 +139,48 @@ public class LocationGatheringTask extends Task {
 
             fields.add(new Row(i, location, description, frequency));
         }
+    }
+
+    private ChangeListener<String> buildLocationListener(JFXComboBox<String> location) {
+        AtomicReference<Timeline> locationTimer = new AtomicReference<>();
+
+        return (observable, oldValue, newValue) -> {
+            if (newValue == null
+                    || newValue.isEmpty()
+                    || (oldValue != null && oldValue.replace(" ", "").equals(newValue.replace(" ", "")))
+                    || location.getItems().contains(newValue)) {
+                return;
+            }
+
+            locationFields.stream().filter(l -> !l.equals(location)).forEach(l -> l.setDisable(true));
+
+            if (locationTimer.get() != null) {
+                locationTimer.get().stop();
+            }
+            locationTimer.set(new Timeline(new KeyFrame(Duration.seconds(2), event -> {
+                boolean wasFocused = location.isFocused();
+
+                if (locationLabel != null) {
+                    locationLabel.requestFocus();
+                    location.setDisable(true);
+                }
+
+                GoogleMapsAPI.getI().searchLocation(newValue, locations -> {
+                    locationFields.forEach(l -> l.setDisable(false));
+//                    location.setDisable(false);
+                    if (wasFocused) {
+                        location.requestFocus();
+                    }
+
+                    List<String> list = locations.stream().map(Location::getCompleteName).collect(Collectors.toList());
+                    location.setItems(FXCollections.observableArrayList(list));
+                    location.show();
+
+                    locationTimer.set(null);
+                });
+            })));
+            locationTimer.get().play();
+        };
     }
 
     @Override
@@ -155,7 +211,7 @@ public class LocationGatheringTask extends Task {
     @Value
     private class Row {
         private final int index;
-        private final JFXTextField location;
+        private final JFXComboBox<String> location;
         private final JFXTextField description;
         private final JFXComboBox<String> frequency;
 
