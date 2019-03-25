@@ -58,8 +58,6 @@ public class GoogleMapsAPI {
                         list.add(location);
                     }
 
-                    System.out.println(list);
-
                     consumer.accept(list);
                 });
     }
